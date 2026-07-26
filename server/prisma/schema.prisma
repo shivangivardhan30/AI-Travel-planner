@@ -1,0 +1,96 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  name         String
+  email        String      @unique
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  trips        Trip[]
+  favourites   Favourite[]
+}
+
+model Trip {
+  id                       String      @id @default(uuid())
+  userId                   String
+  user                     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  origin                   String
+  destination              String
+  startDate                DateTime
+  endDate                  DateTime
+  numberOfTravellers       Int
+  budget                   Float
+  travelStyle              String      // Solo, Couple, Friends, Family
+  transportPreference      String      // Flight, Train, Bus, Car, Any
+  interests                Json        // Array of strings
+  estimatedTransportCost   Float
+  estimatedHotelCost       Float
+  estimatedFoodCost        Float
+  estimatedLocalTravelCost Float
+  estimatedActivitiesCost  Float
+  estimatedMiscCost        Float
+  estimatedTotalCost       Float
+  weatherData              Json        // Current forecast or seasonal weather estimation
+  packingList              Json        // JSON object containing packing items and travel requirements
+  itinerary                Itinerary?
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+}
+
+model Destination {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  state             String
+  country           String
+  description       String   @db.Text
+  image             String   @db.Text
+  popularActivities Json     // Array of strings
+  bestTime          String   // e.g. "October to March"
+  typicalSeason     String   // e.g. "Winter", "Summer", "Monsoon"
+  typicalWeather    Json     // Detailed typical climate data per month
+  typicalCosts      Json     // Cost factors for hotel, food, etc.
+  popularAttractions Json     // Array of strings
+  lat               Float    @default(0.0)
+  lon               Float    @default(0.0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Itinerary {
+  id        String         @id @default(uuid())
+  tripId    String         @unique
+  trip      Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  totalCost Float
+  days      ItineraryDay[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model ItineraryDay {
+  id            String    @id @default(uuid())
+  itineraryId   String
+  itinerary     Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  dayNumber     Int
+  morning       String    @db.Text
+  afternoon     String    @db.Text
+  evening       String    @db.Text
+  estimatedCost Float
+}
+
+model Favourite {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinationName String
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, destinationName])
+}
