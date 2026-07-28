@@ -26,7 +26,9 @@ class AIService {
     const client = this.getGeminiClient();
     
     // Fetch all available destinations from DB to supply context to AI or use for local matching
-    const allDestinations = await prisma.destination.findMany();
+    const allDestinationsRaw = await prisma.destination.findMany();
+    const { parseDestination } = require('../utils/dbHelpers');
+    const allDestinations = allDestinationsRaw.map(d => parseDestination(d));
 
     if (client) {
       try {
@@ -182,9 +184,11 @@ class AIService {
     const budgetTier = this.determineBudgetTier(preferences.budget, duration, preferences.numberOfTravellers);
 
     for (const rec of recommendations) {
-      const dest = await prisma.destination.findUnique({
+      const destRaw = await prisma.destination.findUnique({
         where: { name: rec.destinationName }
       });
+      const { parseDestination } = require('../utils/dbHelpers');
+      const dest = parseDestination(destRaw);
 
       if (dest) {
         const costEstimate = costEstimatorService.estimateTripCost({
@@ -216,6 +220,8 @@ class AIService {
    * Generates a day-by-day itinerary
    */
   async generateItinerary(destination, preferences, budgetTier) {
+    const { parseDestination } = require('../utils/dbHelpers');
+    destination = parseDestination(destination);
     const client = this.getGeminiClient();
     const duration = Math.max(1, Math.ceil((new Date(preferences.endDate) - new Date(preferences.startDate)) / (1000 * 60 * 60 * 24)));
 
@@ -315,6 +321,8 @@ class AIService {
    * Generates things you'll need / packing list & documents
    */
   async generatePackingList(destination, preferences) {
+    const { parseDestination } = require('../utils/dbHelpers');
+    destination = parseDestination(destination);
     const client = this.getGeminiClient();
 
     if (client) {

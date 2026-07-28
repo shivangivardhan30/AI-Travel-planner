@@ -100,8 +100,17 @@ class WeatherService {
       season = "winter"; // October - February
     }
 
-    const typical = (destination.typicalWeather && destination.typicalWeather[season]) 
-      ? destination.typicalWeather[season]
+    let weatherMeta = destination.typicalWeather;
+    if (typeof weatherMeta === 'string') {
+      try {
+        weatherMeta = JSON.parse(weatherMeta);
+      } catch (e) {
+        weatherMeta = null;
+      }
+    }
+
+    const typical = (weatherMeta && weatherMeta[season]) 
+      ? weatherMeta[season]
       : { tempRange: "18°C - 30°C", condition: "Pleasant", rainProb: "10%" };
 
     // Format historical/seasonal forecast mock data based on duration

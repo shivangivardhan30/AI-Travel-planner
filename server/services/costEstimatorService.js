@@ -15,12 +15,24 @@ class CostEstimatorService {
    */
   estimateTripCost({ destination, budgetTier, durationDays, travellers, transportPreference }) {
     const tier = (budgetTier || 'standard').toLowerCase();
-    const costsMeta = destination.typicalCosts || {
-      transportBase: 2000,
-      budget: { hotel: 800, food: 400, local: 300, activities: 400, misc: 200 },
-      standard: { hotel: 2000, food: 900, local: 700, activities: 800, misc: 500 },
-      premium: { hotel: 6000, food: 2200, local: 2000, activities: 2500, misc: 1200 }
-    };
+    
+    let costsMeta = destination.typicalCosts;
+    if (typeof costsMeta === 'string') {
+      try {
+        costsMeta = JSON.parse(costsMeta);
+      } catch (e) {
+        costsMeta = null;
+      }
+    }
+
+    if (!costsMeta) {
+      costsMeta = {
+        transportBase: 2000,
+        budget: { hotel: 800, food: 400, local: 300, activities: 400, misc: 200 },
+        standard: { hotel: 2000, food: 900, local: 700, activities: 800, misc: 500 },
+        premium: { hotel: 6000, food: 2200, local: 2000, activities: 2500, misc: 1200 }
+      };
+    }
 
     const tierCosts = costsMeta[tier] || costsMeta.standard;
     const baseTransport = costsMeta.transportBase || 2000;

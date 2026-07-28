@@ -21,7 +21,9 @@ class DestinationService {
       where.typicalSeason = { contains: season, mode: 'insensitive' };
     }
 
-    return await prisma.destination.findMany({ where });
+    const destinations = await prisma.destination.findMany({ where });
+    const { parseDestination } = require('../utils/dbHelpers');
+    return destinations.map(d => parseDestination(d));
   }
 
   /**
@@ -31,9 +33,11 @@ class DestinationService {
    */
   async compareDestinations(destinationNames, preferences) {
     const names = destinationNames.slice(0, 3);
-    const destinations = await prisma.destination.findMany({
+    const destinationsRaw = await prisma.destination.findMany({
       where: { name: { in: names } }
     });
+    const { parseDestination } = require('../utils/dbHelpers');
+    const destinations = destinationsRaw.map(d => parseDestination(d));
 
     const duration = Math.max(1, Math.ceil((new Date(preferences.endDate) - new Date(preferences.startDate)) / (1000 * 60 * 60 * 24)));
     const budget = preferences.budget;

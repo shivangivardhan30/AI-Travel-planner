@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -30,16 +30,16 @@ model Trip {
   budget                   Float
   travelStyle              String      // Solo, Couple, Friends, Family
   transportPreference      String      // Flight, Train, Bus, Car, Any
-  interests                Json        // Array of strings
+  interests                String      // Stringified JSON Array
   estimatedTransportCost   Float
   estimatedHotelCost       Float
-  estimatedFoodCost        Float
+  estimatedFoodCost       Float
   estimatedLocalTravelCost Float
   estimatedActivitiesCost  Float
   estimatedMiscCost        Float
   estimatedTotalCost       Float
-  weatherData              Json        // Current forecast or seasonal weather estimation
-  packingList              Json        // JSON object containing packing items and travel requirements
+  weatherData              String      // Stringified JSON Object
+  packingList              String      // Stringified JSON Object
   itinerary                Itinerary?
   createdAt                DateTime    @default(now())
   updatedAt                DateTime    @updatedAt
@@ -50,14 +50,14 @@ model Destination {
   name              String   @unique
   state             String
   country           String
-  description       String   @db.Text
-  image             String   @db.Text
-  popularActivities Json     // Array of strings
+  description       String
+  image             String
+  popularActivities String   // Stringified JSON Array
   bestTime          String   // e.g. "October to March"
   typicalSeason     String   // e.g. "Winter", "Summer", "Monsoon"
-  typicalWeather    Json     // Detailed typical climate data per month
-  typicalCosts      Json     // Cost factors for hotel, food, etc.
-  popularAttractions Json     // Array of strings
+  typicalWeather    String   // Stringified JSON Object
+  typicalCosts      String   // Stringified JSON Object
+  popularAttractions String   // Stringified JSON Array
   lat               Float    @default(0.0)
   lon               Float    @default(0.0)
   createdAt         DateTime @default(now())
@@ -79,9 +79,9 @@ model ItineraryDay {
   itineraryId   String
   itinerary     Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
   dayNumber     Int
-  morning       String    @db.Text
-  afternoon     String    @db.Text
-  evening       String    @db.Text
+  morning       String
+  afternoon     String
+  evening       String
   estimatedCost Float
 }
 

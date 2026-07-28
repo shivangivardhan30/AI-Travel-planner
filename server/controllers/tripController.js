@@ -30,13 +30,16 @@ exports.generate = async (req, res) => {
     }
 
     // Look up destination
-    const destination = await prisma.destination.findUnique({
+    const destinationRaw = await prisma.destination.findUnique({
       where: { name: destinationName }
     });
 
-    if (!destination) {
+    if (!destinationRaw) {
       return res.status(404).json({ error: 'Destination not found in our database.' });
     }
+
+    const { parseDestination } = require('../utils/dbHelpers');
+    const destination = parseDestination(destinationRaw);
 
     const duration = Math.max(1, Math.ceil((new Date(preferences.endDate) - new Date(preferences.startDate)) / (1000 * 60 * 60 * 24)));
     const budgetTier = aiService.determineBudgetTier(preferences.budget, duration, preferences.numberOfTravellers || 1);
@@ -109,7 +112,7 @@ exports.saveTrip = async (req, res) => {
         budget: parseFloat(budget) || 0,
         travelStyle: travelStyle || 'Solo',
         transportPreference: transportPreference || 'Any',
-        interests: interests || [],
+        interests: JSON.stringify(interests || []),
         estimatedTransportCost: parseFloat(costEstimate.transport) || 0,
         estimatedHotelCost: parseFloat(costEstimate.stay) || 0,
         estimatedFoodCost: parseFloat(costEstimate.food) || 0,
@@ -117,8 +120,8 @@ exports.saveTrip = async (req, res) => {
         estimatedActivitiesCost: parseFloat(costEstimate.activities) || 0,
         estimatedMiscCost: parseFloat(costEstimate.misc) || 0,
         estimatedTotalCost: parseFloat(costEstimate.total) || 0,
-        weatherData: weatherInfo || {},
-        packingList: packingList || {},
+        weatherData: JSON.stringify(weatherInfo || {}),
+        packingList: JSON.stringify(packingList || {}),
         itinerary: {
           create: {
             totalCost: parseFloat(itinerary.totalEstimatedCost || costEstimate.total || 0),
@@ -175,14 +178,16 @@ exports.getTrips = async (req, res) => {
     });
 
     // Enrich with destination images
+    const { parseTrip } = require('../utils/dbHelpers');
     const enrichedTrips = await Promise.all(trips.map(async (trip) => {
-      const dest = await prisma.destination.findUnique({
+      const destRaw = await prisma.destination.findUnique({
         where: { name: trip.destination },
         select: { image: true }
       });
+      const parsedTrip = parseTrip(trip);
       return {
-        ...trip,
-        destinationImage: dest ? dest.image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
+        ...parsedTrip,
+        destinationImage: destRaw ? destRaw.image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
       };
     }));
 
@@ -217,13 +222,17 @@ exports.getTripById = async (req, res) => {
       return res.status(403).json({ error: 'Access denied. You do not own this trip.' });
     }
 
-    const dest = await prisma.destination.findUnique({
+    const destRaw = await prisma.destination.findUnique({
       where: { name: trip.destination }
     });
 
+    const { parseTrip, parseDestination } = require('../utils/dbHelpers');
+    const parsedTrip = parseTrip(trip);
+    const dest = parseDestination(destRaw);
+
     res.json({
       trip: {
-        ...trip,
+        ...parsedTrip,
         destinationImage: dest ? dest.image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
         destinationDetails: dest
       }
@@ -257,9 +266,9 @@ exports.updateTrip = async (req, res) => {
     if (endDate) updateData.endDate = new Date(endDate);
     if (budget) updateData.budget = parseFloat(budget);
     if (numberOfTravellers) updateData.numberOfTravellers = parseInt(numberOfTravellers);
-    if (packingList) updateData.packingList = packingList;
+    if (packingList) updateData.packingList = JSON.stringify(packingList);
 
-    const updated = await prisma.trip.update({
+    const updatedRaw = await prisma.trip.update({
       where: { id: req.params.id },
       data: updateData,
       include: {
@@ -272,6 +281,9 @@ exports.updateTrip = async (req, res) => {
         }
       }
     });
+
+    const { parseTrip } = require('../utils/dbHelpers');
+    const updated = parseTrip(updatedRaw);
 
     res.json({ message: 'Trip updated successfully.', trip: updated });
   } catch (error) {

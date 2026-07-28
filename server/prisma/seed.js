@@ -367,10 +367,18 @@ const destinations = [
 async function main() {
   console.log("Start seeding destinations...");
   for (const d of destinations) {
+    const dMapped = {
+      ...d,
+      popularActivities: JSON.stringify(d.popularActivities),
+      typicalWeather: JSON.stringify(d.typicalWeather),
+      typicalCosts: JSON.stringify(d.typicalCosts),
+      popularAttractions: JSON.stringify(d.popularAttractions)
+    };
+
     const destination = await prisma.destination.upsert({
       where: { name: d.name },
-      update: d,
-      create: d,
+      update: dMapped,
+      create: dMapped,
     });
     console.log(`Upserted destination: ${destination.name}`);
   }
