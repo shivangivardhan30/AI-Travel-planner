@@ -289,30 +289,39 @@ export default function PlannerPage() {
                   <Users className="h-5 w-5 text-brand-400" />
                   <span>Who are you travelling with?</span>
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-slate-400 text-xs font-medium mb-1.5">Number of Travellers</label>
-                    <input 
-                      type="number"
-                      required
-                      min="1"
-                      className="w-full glass-input text-sm"
-                      value={travellers}
-                      onChange={(e) => setTravellers(e.target.value)}
-                    />
+                    <label className="block text-slate-400 text-xs font-medium mb-2">Number of Travellers</label>
+                    <div className="relative">
+                      <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <input 
+                        type="number"
+                        required
+                        min="1"
+                        className="w-full glass-input pl-10 text-sm font-semibold"
+                        value={travellers}
+                        onChange={(e) => setTravellers(e.target.value)}
+                      />
+                    </div>
                   </div>
                   
                   <div>
-                    <label className="block text-slate-400 text-xs font-medium mb-2">Travel Style</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {['Solo', 'Couple', 'Friends', 'Family'].map((style) => (
+                    <label className="block text-slate-400 text-xs font-medium mb-3">Travel Style</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { name: 'Solo', desc: 'Single traveler exploration' },
+                        { name: 'Couple', desc: 'Romantic getaway for two' },
+                        { name: 'Friends', desc: 'Group or buddy dynamic' },
+                        { name: 'Family', desc: 'Kid & elder-friendly comfort' }
+                      ].map((item) => (
                         <button
-                          key={style}
+                          key={item.name}
                           type="button"
-                          onClick={() => setTravelStyle(style)}
-                          className={`py-2 px-3 text-sm rounded-lg border transition-all ${travelStyle === style ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 font-semibold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                          onClick={() => setTravelStyle(item.name)}
+                          className={`p-4 text-left rounded-xl border transition-all flex flex-col ${travelStyle === item.name ? 'bg-brand-500/20 border-brand-500 text-brand-400 font-semibold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
                         >
-                          {style}
+                          <span className="text-white text-sm font-bold">{item.name}</span>
+                          <span className="text-[10px] text-slate-400 font-normal mt-1 leading-normal">{item.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -328,7 +337,7 @@ export default function PlannerPage() {
                   <Compass className="h-5 w-5 text-brand-400" />
                   <span>What are your trip interests?</span>
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2.5">
                   {interestOptions.map((interest) => {
                     const isSelected = selectedInterests.includes(interest);
                     return (
@@ -336,7 +345,7 @@ export default function PlannerPage() {
                         key={interest}
                         type="button"
                         onClick={() => handleInterestToggle(interest)}
-                        className={`py-2 px-3 text-xs rounded-full border transition-all ${isSelected ? 'bg-brand-500/20 border-brand-500 text-brand-400 font-medium' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                        className={`py-2 px-4 text-xs rounded-full border transition-all ${isSelected ? 'bg-brand-500/20 border-brand-500 text-brand-400 font-medium' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
                       >
                         {interest}
                       </button>
@@ -355,19 +364,19 @@ export default function PlannerPage() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: 'Cold / Snow', value: 'Cold', desc: 'Snowy mountains' },
-                    { label: 'Pleasant', value: 'Pleasant', desc: 'Mild & comfortable' },
-                    { label: 'Warm / Tropical', value: 'Warm', desc: 'Sunny beach/desert' },
-                    { label: 'Any Weather', value: 'Any', desc: 'Explore regardless' }
+                    { label: 'Cold / Snow', value: 'Cold', desc: 'Snowy mountains & cold winds' },
+                    { label: 'Pleasant', value: 'Pleasant', desc: 'Mild temp, comfortable skies' },
+                    { label: 'Warm / Tropical', value: 'Warm', desc: 'Sunny beaches, desert sands' },
+                    { label: 'Any Weather', value: 'Any', desc: 'Open to explore regardless' }
                   ].map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       onClick={() => setPreferredWeather(item.value)}
-                      className={`p-4 rounded-xl border text-left transition-all flex flex-col ${preferredWeather === item.value ? 'bg-brand-500/20 border-brand-500 text-brand-400' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                      className={`p-4 rounded-xl border text-left transition-all flex flex-col ${preferredWeather === item.value ? 'bg-brand-500/20 border-brand-500 text-brand-400' : 'bg-slate-900 border-slate-800/80 text-slate-400'}`}
                     >
-                      <span className="font-semibold text-sm text-white mb-0.5">{item.label}</span>
-                      <span className="text-[11px] opacity-75">{item.desc}</span>
+                      <span className="font-bold text-sm text-white mb-1">{item.label}</span>
+                      <span className="text-[10px] text-slate-400 leading-normal">{item.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -381,15 +390,22 @@ export default function PlannerPage() {
                   <Plane className="h-5 w-5 text-brand-400" />
                   <span>How do you prefer to travel?</span>
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {['Flight', 'Train', 'Bus', 'Car', 'Any'].map((item) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { name: 'Flight', desc: 'Fastest transit' },
+                    { name: 'Train', desc: 'Scenic budget track' },
+                    { name: 'Bus', desc: 'Intercity links' },
+                    { name: 'Car', desc: 'Flexible roadtrip' },
+                    { name: 'Any', desc: 'Best match' }
+                  ].map((item) => (
                     <button
-                      key={item}
+                      key={item.name}
                       type="button"
-                      onClick={() => setTransportPreference(item)}
-                      className={`py-3 px-3 rounded-lg border text-sm text-center transition-all ${transportPreference === item ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 font-semibold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                      onClick={() => setTransportPreference(item.name)}
+                      className={`p-3 rounded-xl border text-left transition-all flex flex-col ${transportPreference === item.name ? 'bg-brand-500/20 border-brand-500 text-brand-400 font-semibold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
                     >
-                      {item}
+                      <span className="text-white text-sm font-bold">{item.name}</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5 leading-normal">{item.desc}</span>
                     </button>
                   ))}
                 </div>

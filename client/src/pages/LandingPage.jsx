@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, Sparkles, Shield, Calendar, ArrowRight, ArrowUpRight, HelpCircle } from 'lucide-react';
+import heroImg from '../assets/hero_dashboard.jpg';
 
 const popularPicks = [
   {
@@ -33,39 +34,58 @@ export default function LandingPage() {
   return (
     <div className="flex-grow flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center py-20 px-4 overflow-hidden border-b border-slate-900 bg-navy-950">
+      <section className="relative min-h-[85vh] flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-slate-900 bg-navy-950">
         {/* Dynamic Glowing Accents */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-10 right-1/4 w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto text-center relative z-10 animate-fade-in">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-400 text-xs font-semibold uppercase tracking-wider mb-6 border border-brand-500/20">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Next-Gen Travel Intelligence</span>
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 animate-fade-in">
+          {/* Left Text Column */}
+          <div className="lg:col-span-7 text-left space-y-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-500/10 text-brand-400 text-xs font-semibold uppercase tracking-wider border border-brand-500/20">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Next-Gen Travel Intelligence</span>
+            </div>
+
+            <h1 className="font-outfit text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+              Plan Smarter. <br />
+              <span className="gradient-text">Travel Better.</span>
+            </h1>
+
+            <p className="text-slate-400 text-base sm:text-lg max-w-2xl leading-relaxed font-light">
+              Tell us your budget, travel dates, and preferred style. RoamAI analyzes destination climates, projects transit expenses, compiles custom checklists, and structures interactive day-by-day itineraries tailored to you.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link
+                to="/planner"
+                className="glow-btn bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold px-8 py-3.5 rounded-xl transition-all flex items-center gap-2 group justify-center text-base"
+              >
+                <span>Plan My Trip</span>
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                to="/explore"
+                className="bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-medium px-8 py-3.5 rounded-xl transition-all text-center text-base flex items-center justify-center"
+              >
+                Explore Destinations
+              </Link>
+            </div>
           </div>
 
-          <h1 className="font-outfit text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-            Plan Smarter. <span className="gradient-text">Travel Better.</span>
-          </h1>
-
-          <p className="text-slate-400 text-base sm:text-xl max-w-3xl mx-auto mb-10 leading-relaxed font-light">
-            Tell us your budget, dates and preferences. Our AI will analyze destination weather forecast estimates, calculate exact expense splits, package checklists, and generate your customized day-by-day itinerary.
-          </p>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link
-              to="/planner"
-              className="glow-btn bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold px-8 py-3.5 rounded-xl transition-all flex items-center gap-2 group w-full sm:w-auto justify-center text-base"
-            >
-              <span>Plan My Trip</span>
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              to="/explore"
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-medium px-8 py-3.5 rounded-xl transition-all w-full sm:w-auto text-center text-base"
-            >
-              Explore Destinations
-            </Link>
+          {/* Right Image/Mockup Column */}
+          <div className="lg:col-span-5 relative flex justify-center items-center">
+            {/* Glowing ring backing the image */}
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-400 to-indigo-500 opacity-25 blur-lg animate-pulse" style={{ animationDuration: '4s' }} />
+            
+            <div className="relative glass-panel p-2 rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-w-lg lg:max-w-full">
+              <img 
+                src={heroImg} 
+                alt="AI Travel Planner Dashboard Mockup" 
+                className="w-full h-auto rounded-xl object-cover"
+                loading="eager"
+              />
+            </div>
           </div>
         </div>
       </section>
