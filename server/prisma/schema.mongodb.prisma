@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -8,7 +8,7 @@ generator client {
 }
 
 model User {
-  id           String      @id @default(uuid())
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   email        String      @unique
   passwordHash String
@@ -19,8 +19,8 @@ model User {
 }
 
 model Trip {
-  id                       String      @id @default(uuid())
-  userId                   String
+  id                       String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId                   String      @db.ObjectId
   user                     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   origin                   String
   destination              String
@@ -48,27 +48,27 @@ model Trip {
 }
 
 model Destination {
-  id                String   @id @default(uuid())
-  name              String   @unique
-  state             String
-  country           String
-  description       String
-  image             String
-  popularActivities String   // Stringified JSON Array
-  bestTime          String   // e.g. "October to March"
-  typicalSeason     String   // e.g. "Winter", "Summer", "Monsoon"
-  typicalWeather    String   // Stringified JSON Object
-  typicalCosts      String   // Stringified JSON Object
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String   @unique
+  state              String
+  country            String
+  description        String
+  image              String
+  popularActivities  String   // Stringified JSON Array
+  bestTime           String   // e.g. "October to March"
+  typicalSeason      String   // e.g. "Winter", "Summer", "Monsoon"
+  typicalWeather     String   // Stringified JSON Object
+  typicalCosts       String   // Stringified JSON Object
   popularAttractions String   // Stringified JSON Array
-  lat               Float    @default(0.0)
-  lon               Float    @default(0.0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  lat                Float    @default(0.0)
+  lon                Float    @default(0.0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Itinerary {
-  id        String         @id @default(uuid())
-  tripId    String         @unique
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  tripId    String         @unique @db.ObjectId
   trip      Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
   totalCost Float
   days      ItineraryDay[]
@@ -77,8 +77,8 @@ model Itinerary {
 }
 
 model ItineraryDay {
-  id            String    @id @default(uuid())
-  itineraryId   String
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  itineraryId   String    @db.ObjectId
   itinerary     Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
   dayNumber     Int
   morning       String
@@ -88,8 +88,8 @@ model ItineraryDay {
 }
 
 model Favourite {
-  id              String   @id @default(uuid())
-  userId          String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   destinationName String
   createdAt       DateTime @default(now())

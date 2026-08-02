@@ -53,7 +53,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-slate-400 text-base sm:text-lg max-w-2xl leading-relaxed font-light">
-              Tell us your budget, travel dates, and preferred style. RoamAI analyzes destination climates, projects transit expenses, compiles custom checklists, and structures interactive day-by-day itineraries tailored to you.
+              Tell us your budget, travel dates, and preferred style. TripMate analyzes destination climates, projects transit expenses, compiles custom checklists, and structures interactive day-by-day itineraries tailored to you.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -111,7 +111,7 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-6 border border-indigo-500/20">2</div>
               <h3 className="font-outfit text-xl font-bold mb-3">Get Recommendations</h3>
               <p className="text-slate-400 leading-relaxed text-sm">
-                RoamAI processes typical climate patterns, transport metrics, and interest scores to matching destinations.
+                TripMate processes typical climate patterns, transport metrics, and interest scores to matching destinations.
               </p>
             </div>
 
@@ -177,7 +177,7 @@ export default function LandingPage() {
       <section className="py-20 px-4 bg-slate-950/40 border-t border-slate-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-outfit text-3xl sm:text-4xl font-bold mb-4">Why Use RoamAI?</h2>
+            <h2 className="font-outfit text-3xl sm:text-4xl font-bold mb-4">Why Use TripMate?</h2>
             <p className="text-slate-400 max-w-xl mx-auto">Skip hours of manual research. Let intelligence plan your next escape.</p>
           </div>
 

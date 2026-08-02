@@ -17,7 +17,8 @@ exports.parseTrip = (trip) => {
     ...trip,
     interests: typeof trip.interests === 'string' ? JSON.parse(trip.interests) : (trip.interests || []),
     weatherData: typeof trip.weatherData === 'string' ? JSON.parse(trip.weatherData) : (trip.weatherData || {}),
-    packingList: typeof trip.packingList === 'string' ? JSON.parse(trip.packingList) : (trip.packingList || {})
+    packingList: typeof trip.packingList === 'string' ? JSON.parse(trip.packingList) : (trip.packingList || {}),
+    expenses: typeof trip.expenses === 'string' ? JSON.parse(trip.expenses) : (trip.expenses || [])
   };
 };
 

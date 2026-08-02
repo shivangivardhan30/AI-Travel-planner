@@ -28,6 +28,7 @@ export default function PlannerPage() {
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [preferredWeather, setPreferredWeather] = useState('Pleasant'); // Cold, Pleasant, Warm, Any
   const [transportPreference, setTransportPreference] = useState('Any'); // Flight, Train, Bus, Car, Any
+  const [stayPreference, setStayPreference] = useState('Hotel'); // Hotel, Hostel, Resort, Homestay
 
   const handleInterestToggle = (interest) => {
     if (selectedInterests.includes(interest)) {
@@ -80,7 +81,8 @@ export default function PlannerPage() {
       travelStyle,
       interests: selectedInterests,
       preferredWeather,
-      transportPreference
+      transportPreference,
+      stayPreference
     };
     
     sessionStorage.setItem('plannerPreferences', JSON.stringify(plannerSession));
@@ -96,7 +98,7 @@ export default function PlannerPage() {
     }, 1800);
   };
 
-  const progressPercentage = Math.round(((currentStep - 1) / 6) * 100);
+  const progressPercentage = Math.round(((currentStep - 1) / 7) * 100);
 
   if (loading) {
     return (
@@ -107,7 +109,7 @@ export default function PlannerPage() {
             <Compass className="h-16 w-16 text-brand-400 animate-spin" style={{ animationDuration: '3s' }} />
             <Sparkles className="absolute h-6 w-6 text-indigo-400 animate-pulse top-0 right-0" />
           </div>
-          <h2 className="font-outfit text-2xl font-bold text-white">RoamAI Thinking...</h2>
+          <h2 className="font-outfit text-2xl font-bold text-white">TripMate Thinking...</h2>
           <p className="text-slate-400 text-sm max-w-sm mx-auto animate-pulse">{loadingMessage}</p>
         </div>
       </div>
@@ -123,7 +125,7 @@ export default function PlannerPage() {
         {/* Progress indicators */}
         <div className="mb-8">
           <div className="flex justify-between text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2">
-            <span>Step {currentStep} of 7</span>
+            <span>Step {currentStep} of 8</span>
             <span>{progressPercentage}% Complete</span>
           </div>
           <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-slate-800">
@@ -412,6 +414,34 @@ export default function PlannerPage() {
               </div>
             )}
 
+            {/* STEP 8: Preferred Stay (New) */}
+            {currentStep === 8 && (
+              <div className="space-y-5 animate-fade-in">
+                <h3 className="font-outfit text-xl font-bold text-white flex items-center gap-2">
+                  <Compass className="h-5 w-5 text-brand-400" />
+                  <span>What is your stay preference?</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { name: 'Hotel', desc: 'Comfortable premium hotel stay' },
+                    { name: 'Hostel', desc: 'Budget-friendly shared backpacker setup' },
+                    { name: 'Resort', desc: 'Luxury resort and retreat amenities' },
+                    { name: 'Homestay', desc: 'Cozy authentic local residency' }
+                  ].map((item) => (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => setStayPreference(item.name)}
+                      className={`p-4 rounded-xl border text-left transition-all flex flex-col ${stayPreference === item.name ? 'bg-brand-500/20 border-brand-500 text-brand-400 font-semibold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                    >
+                      <span className="text-white text-sm font-bold">{item.name}</span>
+                      <span className="text-[10px] text-slate-400 mt-1 leading-normal">{item.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Form actions */}
             <div className="flex gap-3 pt-6 border-t border-slate-900 mt-8">
               {currentStep > 1 && (
@@ -425,7 +455,7 @@ export default function PlannerPage() {
                 </button>
               )}
 
-              {currentStep < 7 ? (
+              {currentStep < 8 ? (
                 <button
                   type="button"
                   onClick={handleNext}

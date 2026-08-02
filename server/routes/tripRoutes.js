@@ -14,4 +14,8 @@ router.get('/:id', authMiddleware, tripController.getTripById);
 router.put('/:id', authMiddleware, tripController.updateTrip);
 router.delete('/:id', authMiddleware, tripController.deleteTrip);
 
+// Expense Tracker Operations (JWT protected)
+router.post('/:id/expenses', authMiddleware, tripController.addExpense);
+router.delete('/:id/expenses/:expenseId', authMiddleware, tripController.deleteExpense);
+
 module.exports = router;

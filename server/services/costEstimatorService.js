@@ -13,7 +13,7 @@ class CostEstimatorService {
    * @param {string} params.transportPreference - 'Flight' | 'Train' | 'Bus' | 'Car' | 'Any'
    * @returns {Object} Cost breakdown in INR (₹)
    */
-  estimateTripCost({ destination, budgetTier, durationDays, travellers, transportPreference }) {
+  estimateTripCost({ destination, budgetTier, durationDays, travellers, transportPreference, stayPreference }) {
     const tier = (budgetTier || 'standard').toLowerCase();
     
     let costsMeta = destination.typicalCosts;
@@ -60,9 +60,20 @@ class CostEstimatorService {
     // Round transport cost
     const transportTotal = Math.round(transportCostPerPerson * travellers);
 
-    // 2. Hotel Cost Calculation (assumes 2 people share a room)
+    // 2. Hotel/Stay Cost Calculation (assumes 2 people share a room)
     const roomsNeeded = Math.ceil(travellers / 2);
-    const hotelTotal = Math.round(roomsNeeded * tierCosts.hotel * durationDays);
+    let stayMultiplier = 1.0;
+    const stayPref = (stayPreference || 'Hotel').toLowerCase();
+    
+    if (stayPref === 'hostel') {
+      stayMultiplier = 0.4;
+    } else if (stayPref === 'homestay') {
+      stayMultiplier = 0.7;
+    } else if (stayPref === 'resort') {
+      stayMultiplier = 1.8;
+    }
+    
+    const hotelTotal = Math.round(roomsNeeded * (tierCosts.hotel * stayMultiplier) * durationDays);
 
     // 3. Food Cost Calculation
     const foodTotal = Math.round(travellers * tierCosts.food * durationDays);

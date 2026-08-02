@@ -231,7 +231,7 @@ class AIService {
         const model = client.getGenerativeModel({ model: this.modelName });
         
         const prompt = `
-          You are an expert travel planner. Generate a day-by-day travel itinerary for:
+          You are an expert travel planner. Generate a highly detailed day-by-day travel itinerary and trip planning details for:
           - Destination: ${destination.name}, ${destination.state}, ${destination.country}
           - Start Date: ${preferences.startDate}
           - End Date: ${preferences.endDate} (${duration} Days)
@@ -239,13 +239,34 @@ class AIService {
           - Budget Level: ${budgetTier}
           - Number of Travellers: ${preferences.numberOfTravellers}
           - Interests: ${JSON.stringify(preferences.interests)}
+          - Transport Preference: ${preferences.transportPreference || 'Any'}
+          - Stay Preference: ${preferences.stayPreference || 'Hotel'}
           - Famous Attractions Available: ${JSON.stringify(destination.popularAttractions)}
           - Popular Activities Available: ${JSON.stringify(destination.popularActivities)}
 
-          Return EXACTLY a JSON object. Do not include markdown wraps. Return only the raw JSON.
+          Return EXACTLY a JSON object matching this schema. Do not include markdown wraps or backticks. Return only the raw JSON.
           Format:
           {
-            "totalEstimatedCost": 15000,
+            "totalEstimatedCost": 25000,
+            "transportation": {
+              "bestRoute": "Detailed summary route description from origin to destination",
+              "options": [
+                { "type": "Flight", "name": "Indigo / Air India", "cost": 5000, "duration": "2h 30m" }
+              ],
+              "cheapest": "Train option description",
+              "fastest": "Flight option description"
+            },
+            "hotels": [
+              {
+                "name": "Hotel Sunshine",
+                "pricePerNight": 2000,
+                "rating": 4.2,
+                "address": "123 Beach Road",
+                "distanceFromTouristPlaces": "1.5 km from Calangute Beach",
+                "amenities": ["Wifi", "Pool", "Breakfast"],
+                "totalCost": 6000
+              }
+            ],
             "days": [
               {
                 "dayNumber": 1,
@@ -254,7 +275,51 @@ class AIService {
                 "evening": "Detailed evening activity and dinner recommendation.",
                 "estimatedCost": 1200
               }
-            ]
+            ],
+            "attractionDetails": [
+              {
+                "name": "Calangute Beach",
+                "openingTime": "6:00 AM",
+                "closingTime": "9:00 PM",
+                "ticketPrice": "Free",
+                "timeRequired": "2-3 hours",
+                "bestTimeToVisit": "Late Afternoon"
+              }
+            ],
+            "restaurants": [
+              {
+                "name": "Spicy Dhaba",
+                "cuisine": "North Indian",
+                "avgCost": 400,
+                "rating": 4.5,
+                "distance": "0.5 km"
+              }
+            ],
+            "nearbyPlaces": [
+              { "name": "Anjuna Beach", "distance": "8 km", "attraction": "Flea Market" }
+            ],
+            "emergency": {
+              "hospital": "City Hospital, Main St, Phone: 102",
+              "police": "City Police Station, Phone: 100",
+              "atm": "SBI ATM, Near Circle",
+              "pharmacy": "Apollo Pharmacy, Main St"
+            },
+            "aiSuggestions": {
+              "bestTimeToStart": "8:30 AM to beat the crowd",
+              "visitingOrder": "Start with temples in morning, beaches in afternoon",
+              "hiddenGems": "Arambol sweet water lake",
+              "localFood": "Bebinca, Fish Curry",
+              "moneySavingTips": "Rent a scooter instead of hiring private cabs",
+              "placesToAvoid": "Isolated beaches after 10 PM",
+              "safetyTips": "Keep hydrated and watch out for strong beach currents"
+            },
+            "weatherDetails": {
+              "currentTemp": "29°C",
+              "forecast": "Partly cloudy with pleasant evening breeze",
+              "rainChance": "10%",
+              "uvIndex": "Moderate (5)",
+              "suggestedClothing": "Lightweight cotton wear and sunhat"
+            }
           }
         `;
 
@@ -279,16 +344,18 @@ class AIService {
       budgetTier,
       durationDays: duration,
       travellers: preferences.numberOfTravellers,
-      transportPreference: preferences.transportPreference
+      transportPreference: preferences.transportPreference,
+      stayPreference: preferences.stayPreference
     });
 
     const dailyBudget = Math.round((destCosts.stay + destCosts.food + destCosts.localTravel + destCosts.activities + destCosts.misc) / duration);
 
+    // 1. Generate Day-wise Activities
     const days = [];
     for (let d = 1; d <= duration; d++) {
       const morningActivity = d === 1 
-        ? `Arrive in ${destination.name}. Complete check-in at hotel/resort. Rest and acclimatize.` 
-        : `Start early. Head to ${attractions[(d - 1) % attractions.length] || 'local landmark'} for standard sightseeing. Take pictures and enjoy the local scenery.`;
+        ? `Arrive in ${destination.name} from ${preferences.origin}. Complete check-in at your ${preferences.stayPreference || 'Hotel'}. Rest and acclimatize.` 
+        : `Start early. Head to ${attractions[(d - 1) % attractions.length] || 'local landmark'} for sightseeing. Take pictures and enjoy the local scenery.`;
 
       const afternoonActivity = d === duration 
         ? `Check out of the accommodation. Do last-minute shopping at local markets and purchase souvenirs.` 
@@ -298,7 +365,6 @@ class AIService {
         ? `Depart from ${destination.name} with beautiful memories of your trip.`
         : `Stroll through the local streets or visit ${attractions[d % attractions.length] || 'nearby market'}. Experience the local nightlife or attend evening prayers/cultural shows, followed by a cozy dinner.`;
 
-      // Distribute costs (Day 1 check-in, Day last checkout, standard middle days)
       let dayCost = dailyBudget;
       if (d === duration) dayCost = Math.round(dailyBudget * 0.5);
 
@@ -311,9 +377,115 @@ class AIService {
       });
     }
 
+    // 2. Mock Hotel Recommendations based on Stay Preference
+    const stayPref = preferences.stayPreference || 'Hotel';
+    const hotelRate = Math.round(destCosts.stay / (duration * Math.ceil(preferences.numberOfTravellers / 2)));
+    const hotelOptions = [
+      {
+        name: `${destination.name} Grand ${stayPref}`,
+        pricePerNight: hotelRate,
+        rating: 4.4,
+        address: `Main Tourist Street, ${destination.name}`,
+        distanceFromTouristPlaces: `0.8 km from center`,
+        amenities: ["Wi-Fi", "Room Service", "AC"],
+        totalCost: destCosts.stay
+      },
+      {
+        name: `Royal Heritage ${stayPref}`,
+        pricePerNight: Math.round(hotelRate * 0.85),
+        rating: 4.1,
+        address: `Heritage Lane, ${destination.name}`,
+        distanceFromTouristPlaces: `1.5 km from center`,
+        amenities: ["Wi-Fi", "Breakfast", "Parking"],
+        totalCost: Math.round(destCosts.stay * 0.85)
+      },
+      {
+        name: `Eco Stay ${stayPref} & Spa`,
+        pricePerNight: Math.round(hotelRate * 1.3),
+        rating: 4.7,
+        address: `Scenic Valley Road, ${destination.name}`,
+        distanceFromTouristPlaces: `3.0 km from center`,
+        amenities: ["Wi-Fi", "Pool", "Spa", "Breakfast"],
+        totalCost: Math.round(destCosts.stay * 1.3)
+      }
+    ];
+
+    // 3. Mock Transportation Options
+    const baseTrans = Math.round(destCosts.transport / preferences.numberOfTravellers);
+    const transportOptions = {
+      bestRoute: `Take a direct transit route from ${preferences.origin} to ${destination.name} via National Highway / Rail corridors.`,
+      options: [
+        { type: "Flight", name: "Commercial Direct Flight", cost: baseTrans * 2, duration: "2h 15m" },
+        { type: "Train", name: "Express Superfast Train", cost: Math.round(baseTrans * 0.5), duration: "10h 30m" },
+        { type: "Bus", name: "AC Sleeper Bus Service", cost: Math.round(baseTrans * 0.4), duration: "14h" },
+        { type: "Car", name: "Self-driven / Cab Roadtrip", cost: baseTrans * 1.5, duration: "8h" }
+      ],
+      cheapest: `Express Train (Approx. ₹${Math.round(baseTrans * 0.5)} per ticket)`,
+      fastest: `Direct Flight (Approx. ₹${baseTrans * 2} per ticket, takes 2h 15m)`
+    };
+
+    // 4. Mock Attraction Details
+    const attractionDetails = attractions.map((name, index) => ({
+      name,
+      openingTime: index % 2 === 0 ? "9:00 AM" : "8:00 AM",
+      closingTime: index % 2 === 0 ? "6:00 PM" : "7:00 PM",
+      ticketPrice: index % 3 === 0 ? "Free" : `₹${50 * index}`,
+      timeRequired: index % 2 === 0 ? "2 hours" : "3 hours",
+      bestTimeToVisit: index % 2 === 0 ? "Early Morning" : "Late Afternoon"
+    }));
+
+    // 5. Mock Restaurants
+    const restaurants = [
+      { name: `Traditional Flavours of ${destination.name}`, cuisine: "Local Authentic", avgCost: 350, rating: 4.5, distance: "0.4 km" },
+      { name: "The Grill House", cuisine: "Continental / Tandoori", avgCost: 600, rating: 4.2, distance: "1.1 km" },
+      { name: "Organic Garden Cafe", cuisine: "Fast Food & Shakes", avgCost: 250, rating: 4.0, distance: "0.7 km" }
+    ];
+
+    // 6. Mock Emergency Section
+    const emergency = {
+      hospital: `${destination.name} Civil Hospital, Main Road (Phone: 011-234567)`,
+      police: `${destination.name} Town Police Station (Phone: 100)`,
+      atm: `SBI ATM & HDFC ATM Hub, Main Market (0.2 km)`,
+      pharmacy: `Apollo Pharmacy & Local Chemist (24/7 Open)`
+    };
+
+    // 7. Mock AI Suggestions
+    const aiSuggestions = {
+      bestTimeToStart: "8:00 AM to ensure you cover attractions without heavy crowds.",
+      visitingOrder: `Start with ${attractions[0] || 'landmarks'} in the morning and reserve evenings for market walks.`,
+      hiddenGems: `Check out local scenic lookouts and viewpoint paths just outside the main city zone.`,
+      localFood: `Don't miss regional specialties and local tea/snack stalls.`,
+      moneySavingTips: `Use shared auto-rickshaws, rent a scooter, or book tickets online to skip queues.`,
+      placesToAvoid: `Avoid visiting unlit beach/forest margins late at night, and watch out for pushy local guides.`,
+      safetyTips: `Keep offline maps downloaded, stay hydrated, and carry basic identification cards.`
+    };
+
+    // 8. Mock Weather details
+    const weatherDetails = {
+      currentTemp: "24°C",
+      forecast: "Clear blue sky with sunny day profiles and pleasant evening drafts.",
+      rainChance: "10%",
+      uvIndex: "Low (3)",
+      suggestedClothing: "Layered comfortable wear, walking shoes, sunblock, and sunglasses."
+    };
+
+    // 9. Mock Nearby Places (within 30 km)
+    const nearbyPlaces = [
+      { name: `Scenic Valley Lookout`, distance: "12 km", attraction: "Panoramic Hills" },
+      { name: `Historic Sanctuary Ruins`, distance: "24 km", attraction: "Heritage Walks" }
+    ];
+
     return {
       totalEstimatedCost: destCosts.total,
-      days
+      days,
+      hotels: hotelOptions,
+      transportation: transportOptions,
+      attractionDetails,
+      restaurants,
+      emergency,
+      aiSuggestions,
+      weatherDetails,
+      nearbyPlaces
     };
   }
 

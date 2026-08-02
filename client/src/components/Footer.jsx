@@ -12,7 +12,7 @@ export default function Footer() {
               <Compass className="h-5 w-5" />
             </span>
             <span className="font-outfit font-bold text-lg tracking-tight text-white">
-              Roam<span className="text-brand-400">AI</span>
+              Trip<span className="text-brand-400">Mate</span>
             </span>
           </div>
           
@@ -21,7 +21,7 @@ export default function Footer() {
             <Link to="/explore" className="hover:text-brand-400 transition-colors">Explore</Link>
             <Link to="/about" className="hover:text-brand-400 transition-colors">About</Link>
             <span className="text-slate-700">|</span>
-            <span className="text-slate-500">© {new Date().getFullYear()} RoamAI. All rights reserved.</span>
+            <span className="text-slate-500">© {new Date().getFullYear()} TripMate. All rights reserved.</span>
           </div>
         </div>
       </div>

@@ -82,6 +82,7 @@ exports.saveTrip = async (req, res) => {
       budget, 
       travelStyle, 
       transportPreference, 
+      stayPreference,
       interests, 
       costEstimate, 
       weatherInfo, 
@@ -120,6 +121,8 @@ exports.saveTrip = async (req, res) => {
         estimatedTotalCost: parseFloat(costEstimate.total) || 0,
         weatherData: JSON.stringify(weatherInfo || {}),
         packingList: JSON.stringify(packingList || {}),
+        stayPreference: stayPreference || 'Hotel',
+        expenses: JSON.stringify([]),
         itinerary: {
           create: {
             totalCost: parseFloat(itinerary.totalEstimatedCost || costEstimate.total || 0),
@@ -312,5 +315,93 @@ exports.deleteTrip = async (req, res) => {
   } catch (error) {
     console.error('Delete trip error:', error);
     res.status(500).json({ error: 'Server error deleting trip.' });
+  }
+};
+
+exports.addExpense = async (req, res) => {
+  try {
+    const { description, amount, category, date } = req.body;
+    
+    if (!description || amount === undefined || !category) {
+      return res.status(400).json({ error: 'Description, amount, and category are required.' });
+    }
+
+    const trip = await prisma.trip.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+
+    if (trip.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied. You do not own this trip.' });
+    }
+
+    let expenses = [];
+    if (trip.expenses) {
+      expenses = JSON.parse(trip.expenses);
+    }
+
+    const newExpense = {
+      id: require('crypto').randomUUID(),
+      description,
+      amount: parseFloat(amount) || 0,
+      category,
+      date: date || new Date().toISOString().split('T')[0]
+    };
+
+    expenses.push(newExpense);
+
+    const updatedTrip = await prisma.trip.update({
+      where: { id: req.params.id },
+      data: {
+        expenses: JSON.stringify(expenses)
+      }
+    });
+
+    const { parseTrip } = require('../utils/dbHelpers');
+    res.json({ message: 'Expense added successfully.', trip: parseTrip(updatedTrip) });
+  } catch (error) {
+    console.error('Add expense error:', error);
+    res.status(500).json({ error: 'Server error adding expense.' });
+  }
+};
+
+exports.deleteExpense = async (req, res) => {
+  try {
+    const { expenseId } = req.params;
+
+    const trip = await prisma.trip.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+
+    if (trip.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied. You do not own this trip.' });
+    }
+
+    let expenses = [];
+    if (trip.expenses) {
+      expenses = JSON.parse(trip.expenses);
+    }
+
+    expenses = expenses.filter(exp => exp.id !== expenseId);
+
+    const updatedTrip = await prisma.trip.update({
+      where: { id: req.params.id },
+      data: {
+        expenses: JSON.stringify(expenses)
+      }
+    });
+
+    const { parseTrip } = require('../utils/dbHelpers');
+    res.json({ message: 'Expense deleted successfully.', trip: parseTrip(updatedTrip) });
+  } catch (error) {
+    console.error('Delete expense error:', error);
+    res.status(500).json({ error: 'Server error deleting expense.' });
   }
 };

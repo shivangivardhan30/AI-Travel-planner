@@ -11,9 +11,9 @@ export default function AboutPage() {
           <span className="p-2 rounded-xl bg-teal-500/10 text-brand-400 inline-flex mb-2">
             <Compass className="h-8 w-8" />
           </span>
-          <h2 className="font-outfit text-3xl sm:text-4xl font-extrabold text-white">About RoamAI</h2>
+          <h2 className="font-outfit text-3xl sm:text-4xl font-extrabold text-white">About TripMate</h2>
           <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
-            RoamAI is a next-generation AI travel companion designed to streamline trip scheduling, weather checks, budgeting, and packing requirements.
+            TripMate is a next-generation AI travel companion designed to streamline trip scheduling, weather checks, budgeting, and packing requirements.
           </p>
         </div>
 
@@ -26,7 +26,7 @@ export default function AboutPage() {
             <div>
               <h4 className="font-outfit font-bold text-white text-base mb-2">AI-Driven Recommendations</h4>
               <p className="text-slate-400 text-xs leading-relaxed font-light">
-                RoamAI maps out travel periods, starting locations, and budget pools to matching database targets using rule-based metrics or Gemini LLM filters.
+                TripMate maps out travel periods, starting locations, and budget pools to matching database targets using rule-based metrics or Gemini LLM filters.
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function AboutPage() {
             </div>
             <div className="space-y-1">
               <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-semibold">Database</span>
-              <span className="text-white font-medium block">PostgreSQL</span>
+              <span className="text-white font-medium block">SQLite</span>
               <span className="text-slate-500 text-[10px] block">Prisma ORM</span>
             </div>
             <div className="space-y-1">

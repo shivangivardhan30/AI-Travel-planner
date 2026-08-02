@@ -24,7 +24,7 @@ export default function Navbar() {
                 <LogoIcon className="h-6 w-6 animate-pulse" />
               </span>
               <span className="font-outfit font-bold text-xl tracking-tight text-white">
-                Roam<span className="text-brand-400">AI</span>
+                Trip<span className="text-brand-400">Mate</span>
               </span>
             </Link>
           </div>
