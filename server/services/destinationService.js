@@ -11,14 +11,14 @@ class DestinationService {
     
     if (query && query.trim() !== '') {
       where.OR = [
-        { name: { contains: query, mode: 'insensitive' } },
-        { state: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } }
+        { name: { contains: query } },
+        { state: { contains: query } },
+        { description: { contains: query } }
       ];
     }
 
     if (season && season.trim() !== '') {
-      where.typicalSeason = { contains: season, mode: 'insensitive' };
+      where.typicalSeason = { contains: season };
     }
 
     const destinations = await prisma.destination.findMany({ where });

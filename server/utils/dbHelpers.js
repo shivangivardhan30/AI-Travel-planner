@@ -1,6 +1,4 @@
-/**
- * Database Type Helpers for SQLite stringified JSON support
- */
+const prisma = require('../config/db');
 
 exports.parseDestination = (dest) => {
   if (!dest) return null;
@@ -21,4 +19,11 @@ exports.parseTrip = (trip) => {
     weatherData: typeof trip.weatherData === 'string' ? JSON.parse(trip.weatherData) : (trip.weatherData || {}),
     packingList: typeof trip.packingList === 'string' ? JSON.parse(trip.packingList) : (trip.packingList || {})
   };
+};
+
+exports.findDestinationByName = async (name) => {
+  if (!name) return null;
+  const all = await prisma.destination.findMany();
+  const matched = all.find(d => d.name.toLowerCase() === name.trim().toLowerCase());
+  return matched ? exports.parseDestination(matched) : null;
 };

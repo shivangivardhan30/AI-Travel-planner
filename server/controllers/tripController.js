@@ -30,16 +30,12 @@ exports.generate = async (req, res) => {
     }
 
     // Look up destination
-    const destinationRaw = await prisma.destination.findUnique({
-      where: { name: destinationName }
-    });
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const destination = await findDestinationByName(destinationName);
 
-    if (!destinationRaw) {
+    if (!destination) {
       return res.status(404).json({ error: 'Destination not found in our database.' });
     }
-
-    const { parseDestination } = require('../utils/dbHelpers');
-    const destination = parseDestination(destinationRaw);
 
     const duration = Math.max(1, Math.ceil((new Date(preferences.endDate) - new Date(preferences.startDate)) / (1000 * 60 * 60 * 24)));
     const budgetTier = aiService.determineBudgetTier(preferences.budget, duration, preferences.numberOfTravellers || 1);
@@ -98,14 +94,16 @@ exports.saveTrip = async (req, res) => {
     }
 
     // Double-check if destination exists (optional lookup)
-    const destRecord = await prisma.destination.findUnique({ where: { name: destination } });
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const destRecord = await findDestinationByName(destination);
     const image = destRecord ? destRecord.image : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
+    const normalizedDestination = destRecord ? destRecord.name : destination;
 
     const savedTrip = await prisma.trip.create({
       data: {
         userId: req.user.id,
         origin,
-        destination,
+        destination: normalizedDestination,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         numberOfTravellers: parseInt(numberOfTravellers) || 1,

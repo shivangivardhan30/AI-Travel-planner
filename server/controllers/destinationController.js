@@ -59,9 +59,8 @@ exports.getWeatherInfo = async (req, res) => {
 
     let dest = null;
     if (destinationName) {
-      const destRaw = await prisma.destination.findUnique({ where: { name: destinationName } });
-      const { parseDestination } = require('../utils/dbHelpers');
-      dest = parseDestination(destRaw);
+      const { findDestinationByName } = require('../utils/dbHelpers');
+      dest = await findDestinationByName(destinationName);
     }
 
     // Default object for weather query if destination not in DB
@@ -94,10 +93,9 @@ exports.generateItineraryDirect = async (req, res) => {
       return res.status(400).json({ error: 'destinationName and preferences are required.' });
     }
 
-    const destRaw = await prisma.destination.findUnique({ where: { name: destinationName } });
-    if (!destRaw) return res.status(404).json({ error: 'Destination not found.' });
-    const { parseDestination } = require('../utils/dbHelpers');
-    const dest = parseDestination(destRaw);
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const dest = await findDestinationByName(destinationName);
+    if (!dest) return res.status(404).json({ error: 'Destination not found.' });
 
     const duration = Math.max(1, Math.ceil((new Date(preferences.endDate) - new Date(preferences.startDate)) / (1000 * 60 * 60 * 24)));
     const budgetTier = aiService.determineBudgetTier(preferences.budget || 20000, duration, preferences.numberOfTravellers || 1);
@@ -118,10 +116,9 @@ exports.generatePackingListDirect = async (req, res) => {
       return res.status(400).json({ error: 'destinationName and preferences are required.' });
     }
 
-    const destRaw = await prisma.destination.findUnique({ where: { name: destinationName } });
-    if (!destRaw) return res.status(404).json({ error: 'Destination not found.' });
-    const { parseDestination } = require('../utils/dbHelpers');
-    const dest = parseDestination(destRaw);
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const dest = await findDestinationByName(destinationName);
+    if (!dest) return res.status(404).json({ error: 'Destination not found.' });
 
     const packingList = await aiService.generatePackingList(dest, preferences);
     res.json({ packingList });
@@ -169,28 +166,24 @@ exports.addFavourite = async (req, res) => {
     }
 
     // Verify destination exists in DB
-    const destRaw = await prisma.destination.findUnique({
-      where: { name: destinationName }
-    });
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const dest = await findDestinationByName(destinationName);
 
-    if (!destRaw) {
+    if (!dest) {
       return res.status(404).json({ error: 'Destination not found in database.' });
     }
-
-    const { parseDestination } = require('../utils/dbHelpers');
-    const dest = parseDestination(destRaw);
 
     const fav = await prisma.favourite.upsert({
       where: {
         userId_destinationName: {
           userId: req.user.id,
-          destinationName
+          destinationName: dest.name
         }
       },
       update: {},
       create: {
         userId: req.user.id,
-        destinationName
+        destinationName: dest.name
       }
     });
 
@@ -209,11 +202,18 @@ exports.removeFavourite = async (req, res) => {
       return res.status(400).json({ error: 'destinationName parameter is required.' });
     }
 
+    const { findDestinationByName } = require('../utils/dbHelpers');
+    const dest = await findDestinationByName(destinationName);
+
+    if (!dest) {
+      return res.status(404).json({ error: 'Destination not found in database.' });
+    }
+
     await prisma.favourite.delete({
       where: {
         userId_destinationName: {
           userId: req.user.id,
-          destinationName
+          destinationName: dest.name
         }
       }
     });
