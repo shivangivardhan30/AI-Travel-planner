@@ -22,14 +22,30 @@ export default function ResultsPage() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
+        let prefs;
         const stored = sessionStorage.getItem('plannerPreferences');
         if (!stored) {
-          setError('No search preferences found. Please configure your trip details.');
-          setLoading(false);
-          return;
+          console.log("No search preferences in session. Generating default fallback preferences.");
+          // Setup fallback preferences so direct link visits or refreshes don't show error screens
+          prefs = {
+            origin: 'Delhi',
+            suggestDestination: true,
+            destinationName: '',
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            budget: 25000,
+            numberOfTravellers: 1,
+            travelStyle: 'Solo',
+            interests: ['Nature', 'Mountains'],
+            preferredWeather: 'Pleasant',
+            transportPreference: 'Any',
+            stayPreference: 'Hotel'
+          };
+          sessionStorage.setItem('plannerPreferences', JSON.stringify(prefs));
+        } else {
+          prefs = JSON.parse(stored);
         }
 
-        const prefs = JSON.parse(stored);
         setPreferences(prefs);
 
         // If a specific destination was chosen, let's create a pseudo-recommendation for that single spot
