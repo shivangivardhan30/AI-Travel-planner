@@ -79,6 +79,13 @@ export default function ResultsPage() {
     navigate('/compare');
   };
 
+  const handleCardClick = (destinationName, e) => {
+    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) {
+      return;
+    }
+    navigate(`/details?destination=${encodeURIComponent(destinationName)}`);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12 flex-grow bg-navy-950">
@@ -170,7 +177,8 @@ export default function ResultsPage() {
               return (
                 <div 
                   key={d.id} 
-                  className={`glass-panel rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col h-full hover:shadow-2xl relative ${isSelected ? 'border-brand-500/40 ring-1 ring-brand-500/30' : 'border-slate-900'}`}
+                  onClick={(e) => handleCardClick(d.name, e)}
+                  className={`glass-panel rounded-2xl overflow-hidden border transition-all duration-350 flex flex-col h-full hover:shadow-2xl relative cursor-pointer hover:scale-[1.015] hover:border-brand-500/35 ${isSelected ? 'border-brand-500/40 ring-1 ring-brand-500/30' : 'border-slate-900'}`}
                 >
                   {/* Destination image with match score badge */}
                   <div className="h-48 overflow-hidden relative shrink-0">
