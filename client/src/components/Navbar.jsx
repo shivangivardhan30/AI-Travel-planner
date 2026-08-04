@@ -1,12 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, Compass, MapPin, Briefcase, LogOut, User, Compass as LogoIcon } from 'lucide-react';
+import { Menu, X, Compass, MapPin, Briefcase, LogOut, User, Compass as LogoIcon, Sun, Moon } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  const [navVisible, setNavVisible] = useState(true);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.scrollY;
+      setNavVisible(prevScrollPos > currentScrollPos || currentScrollPos < 80);
+      setPrevScrollPos(currentScrollPos);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [prevScrollPos]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', next);
+      return next;
+    });
+  };
 
   const handleLogout = () => {
     logout();
@@ -14,7 +50,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 transition-all">
+    <nav className={`sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 transition-all duration-350 ${navVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -44,6 +80,13 @@ export default function Navbar() {
 
           {/* Desktop User actions */}
           <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-white transition-all cursor-pointer flex items-center justify-center"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-brand-400" /> : <Moon className="h-4.5 w-4.5 text-indigo-400" />}
+            </button>
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <Link to="/dashboard" className="flex items-center gap-2 text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 px-3.5 py-1.5 rounded-lg border border-slate-800 transition-all text-sm font-medium">
@@ -122,7 +165,17 @@ export default function Navbar() {
             About
           </Link>
 
-          <div className="pt-4 pb-2 border-t border-slate-900 px-3 flex flex-col gap-2">
+          <div className="pt-4 pb-2 border-t border-slate-900 px-3 flex flex-col gap-3">
+            <button
+              onClick={() => {
+                toggleTheme();
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center justify-between w-full px-3 py-2 bg-slate-900/60 border border-slate-800 rounded-lg text-sm text-slate-350 hover:text-white"
+            >
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              {theme === 'dark' ? <Sun className="h-4.5 w-4.5 text-brand-400" /> : <Moon className="h-4.5 w-4.5 text-indigo-400" />}
+            </button>
             {isAuthenticated ? (
               <div className="space-y-3">
                 <div className="text-slate-400 text-sm">Signed in as <span className="text-white font-medium">{user.name}</span></div>
