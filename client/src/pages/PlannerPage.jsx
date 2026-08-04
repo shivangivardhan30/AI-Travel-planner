@@ -158,6 +158,19 @@ export default function PlannerPage() {
                       value={origin}
                       onChange={(e) => setOrigin(e.target.value)}
                     />
+                    {/* Quick City Referrals */}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {['Mumbai', 'Delhi', 'Bangalore', 'Kolkata', 'Chennai', 'Pune'].map((city) => (
+                        <button
+                          type="button"
+                          key={city}
+                          onClick={() => setOrigin(city)}
+                          className="px-2.5 py-1 text-[10px] font-medium bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-white border border-slate-850 rounded-full transition-all cursor-pointer"
+                        >
+                          +{city}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   
                   <div className="border-t border-slate-900 pt-4">
@@ -186,7 +199,7 @@ export default function PlannerPage() {
                         <span>Our AI will analyze your dates, budget and interests to recommend the top 3 spots!</span>
                       </div>
                     ) : (
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <label className="block text-slate-400 text-xs font-medium">Preferred Destination</label>
                         <input 
                           type="text"
@@ -196,6 +209,19 @@ export default function PlannerPage() {
                           value={destination}
                           onChange={(e) => setDestination(e.target.value)}
                         />
+                        {/* Quick Destination Referrals */}
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {['Goa', 'Manali', 'Jaipur', 'Kerala', 'Leh Ladakh', 'Udaipur'].map((city) => (
+                            <button
+                              type="button"
+                              key={city}
+                              onClick={() => setDestination(city)}
+                              className="px-2.5 py-1 text-[10px] font-medium bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-white border border-slate-850 rounded-full transition-all cursor-pointer"
+                            >
+                              +{city}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
